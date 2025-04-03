@@ -1,8 +1,7 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,29 +14,18 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// Pagine principali
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/chi-siamo', [HomeController::class, 'chiSiamo'])->name('chi-siamo');
-Route::get('/universita', [HomeController::class, 'universita'])->name('universita');
-Route::get('/orientamento', [HomeController::class, 'orientamento'])->name('orientamento');
-Route::get('/contatti', [HomeController::class, 'contatti'])->name('contatti');
-Route::get('/acquista', [HomeController::class, 'acquista'])->name('acquista');
-Route::get('/certificazioni', [HomeController::class, 'certificazioni'])->name('certificazioni');
-Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
-
-// Pagina di dettaglio delle certificazioni
-Route::get('/certificazioni/{slug}', [HomeController::class, 'certificazioneDettaglio'])->name('certificazione.dettaglio');
-
-// Rotta di test per debug
-Route::get('/test', function() {
-    return "Se vedi questo messaggio, le route di Laravel funzionano correttamente.";
+Route::get('/', function () {
+    return view('welcome');
 });
 
-Route::get('/test-db', function() {
-    try {
-        DB::connection()->getPdo();
-        return 'Database connection: OK! ('.DB::connection()->getDatabaseName().')';
-    } catch (\Exception $e) {
-        return 'Database connection failed: ' . $e->getMessage();
-    }
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';
